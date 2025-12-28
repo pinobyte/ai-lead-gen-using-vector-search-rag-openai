@@ -90,20 +90,11 @@ The platform implements a sophisticated RAG architecture that combines vector se
   - Final synthesis: Combines insights into comprehensive answer
 - **Structured Extraction**: Extracts specific information (background, challenges, solutions, feedback) from unstructured review text
 
-**RAG Benefits:**
-- **Accuracy**: Retrieves contextually relevant information before generating responses
-- **Transparency**: Responses are grounded in actual review data
-- **Efficiency**: Chunked processing handles large datasets efficiently
-- **Scalability**: Vector search scales to millions of documents
-- **Flexibility**: Supports complex queries with multiple filters
-
 ### 5. **Multi-Storage Architecture**
 
-| Storage Type | Use Case | Technology |
-|-------------|----------|------------|
-| **MongoDB** | Primary operational data (Company profiles, reviews) | Document database for flexible schemas |
-| **Azure Cognitive Search** | Vector search and semantic search | Full-text and vector search capabilities |
-| **Azure OpenAI** | Embeddings and completions | AI model services for embeddings and analysis |
+- **MongoDB**: Primary operational data (company profiles, reviews)
+- **Azure Cognitive Search**: Vector search and semantic search
+- **Azure OpenAI**: Embeddings and AI completions
 
 ### 6. **GraphQL API**
 
@@ -207,22 +198,9 @@ The platform implements a sophisticated RAG architecture that combines vector se
 
 ## 🗄️ Data Storage Strategy
 
-### MongoDB (Primary Operational Store)
-- **Company Profiles**: Complete company information with reviews
-- **Reviews**: Customer reviews with structured content
-- **Schema**: Flexible document model for evolving requirements
-- **Indexing**: Optimized indexes for search performance
-
-### Azure Cognitive Search
-- **Vector Search**: Semantic similarity search
-- **Full-Text Search**: Keyword-based search
-- **Hybrid Search**: Combined vector and keyword search
-- **Semantic Ranking**: AI-powered result ranking
-
-### Azure OpenAI
-- **Embeddings**: Text-to-vector conversion
-- **Completions**: AI-powered content analysis
-- **Models**: GPT-4, GPT-4o-mini for different use cases
+**MongoDB**: Stores company profiles and reviews with flexible document schemas  
+**Azure Cognitive Search**: Handles vector search, full-text search, and semantic ranking  
+**Azure OpenAI**: Provides embeddings and AI-powered content analysis
 
 ## 🚀 Deployment & Infrastructure
 
@@ -244,33 +222,11 @@ The platform implements a sophisticated RAG architecture that combines vector se
 
 ## 🛠️ Technology Stack
 
-### Backend
-- **Python 3.9+**: Primary programming language
-- **FastAPI**: Modern, fast web framework
-- **Strawberry GraphQL**: GraphQL implementation
-- **Motor**: Async MongoDB driver
-- **Pydantic**: Data validation and settings management
-
-### AI & Search
-- **Azure OpenAI**: Embeddings and completions
-- **Azure Cognitive Search**: Vector and semantic search
-- **OpenAI SDK**: Python client for OpenAI services
-- **Tiktoken**: Token counting and management
-
-### Data & Storage
-- **MongoDB**: Document database
-- **Motor**: Async MongoDB operations
-
-### Frontend
-- **Streamlit**: Rapid web app development
-- **Pandas**: Data manipulation and analysis
-- **OAuth2**: Authentication integration
-
-### Development Tools
-- **Docker**: Containerization
-- **Docker Compose**: Multi-container orchestration
-- **VS Code**: Development environment
-- **Pytest**: Testing framework
+**Backend**: Python 3.9+, FastAPI, Strawberry GraphQL, Motor (MongoDB), Pydantic  
+**AI & Search**: Azure OpenAI, Azure Cognitive Search, OpenAI SDK  
+**Data**: MongoDB  
+**Frontend**: Streamlit, Pandas, OAuth2  
+**DevOps**: Docker, Docker Compose
 
 ## 📊 Key Features Demonstrated
 
@@ -380,46 +336,6 @@ COMPANY_PROFILE_JSON_MAPPING_QUERY=your_jsonata_query
 - **Integration Tests**: API endpoints, database operations
 - **API Tests**: End-to-end API validation
 - **Test Data**: Isolated test databases
-
-## 📚 Project Structure
-
-```
-lead-meld-ai/
-├── app/                          # FastAPI application
-│   ├── api/                      # API routes
-│   │   ├── background_api.py     # Background task endpoints
-│   │   ├── chat_api.py           # Chat/analysis endpoints
-│   │   └── user_api.py           # User management endpoints
-│   ├── graphql/                  # GraphQL implementation
-│   │   ├── schema.py             # GraphQL schema
-│   │   └── types.py              # GraphQL types
-│   ├── services/                 # Business logic
-│   │   ├── chat_service.py       # AI analysis service
-│   │   ├── company_profile_service.py  # Profile management
-│   │   └── user_service.py       # User management
-│   ├── tasks/                    # Background tasks
-│   │   ├── company_scraper.py    # Web scraping tasks
-│   │   └── linkedin_profile_finder.py  # LinkedIn discovery
-│   ├── utils/                    # Utilities
-│   │   ├── auth.py               # Authentication utilities
-│   │   └── utils.py              # General utilities
-│   ├── config.py                 # Configuration
-│   ├── db.py                     # Database connection
-│   └── main.py                   # FastAPI application entry
-├── streamlit/                    # Streamlit frontend
-│   └── app.py                    # Main Streamlit application
-├── utils/                        # Utility scripts
-│   ├── api_tests.py              # API testing utilities
-│   ├── data-clearing.py          # Data management
-│   ├── rag.ipynb                 # RAG experiments
-│   └── token-calculation.py      # Token utilities
-├── docker-compose.yml            # Docker Compose configuration
-├── Dockerfile.Api                # API Dockerfile
-├── Dockerfile.Streamlit         # Streamlit Dockerfile
-├── requirements-api.txt          # API dependencies
-├── requirements-streamlit.txt    # Streamlit dependencies
-└── README.md                     # This file
-```
 
 ## 🎓 Learning Outcomes
 
@@ -605,17 +521,3 @@ Use the `/graphql` endpoint for interactive GraphQL queries. The GraphQL schema 
 - **POST /api/analyze/**: AI-powered analysis of review content
 - **GET /api/user/usage/**: Get user usage statistics
 - **POST /api/user/register/**: Register new user
-
-## 📄 License
-
-[Specify your license here]
-
-## 👥 Contributing
-
-[Contributing guidelines]
-
----
-
-**Built with ❤️ using Python, FastAPI, Azure, and modern AI technologies**
-
-This project showcases enterprise-level software architecture suitable for intelligent lead generation, semantic search, and AI-powered analysis. It demonstrates proficiency in building modern, scalable systems with cloud-native technologies and AI integration.
