@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+strawberry-graphql
+motor
+python-dotenv
+pytest
+pydantic-settings
+asyncio
+#apify
+#apify-client
+openai
+tiktoken
+azure-search-documents
+azure-identity
+google-auth

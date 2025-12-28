@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  # redis:
+  #   image: redis:latest
+  #   container_name: redis_service
+  #   ports:
+  #     - "6379:6379"
+  #   restart: always
+
+  # mongodb:
+  #   image: mongo:6.0
+  #   container_name: mongo_service
+  #   ports:
+  #     - "27017:27017"
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: example
+  #   volumes:
+  #     - mongo_data:/data/db
+  #   restart: always
+
+  fastapi:
+      build:
+        dockerfile: Dockerfile.Api
+      container_name: lead-meld-api
+      ports:
+        - "8000:8000"
+      env_file:
+        - ./app/.env
+      networks:
+        - leadmeld
+      environment:
+        - PYTHONUNBUFFERED=1
+        - PYTHONDONTWRITEBYTECODE=1
+
+  streamlit:
+    build:
+      dockerfile: Dockerfile.Streamlit
+    container_name: lead-meld-ui
+    ports:
+      - "8501:8501"
+    env_file:
+      - ./streamlit/.env
+    networks:
+      - leadmeld
+    depends_on:
+      - fastapi
+    environment:
+        - PYTHONUNBUFFERED=1
+        - PYTHONDONTWRITEBYTECODE=1
+
+# volumes:
+#   mongo_data:
+
+networks:
+  leadmeld:
+    driver: bridge

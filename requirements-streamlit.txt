@@ -1,0 +1,6 @@
+streamlit
+streamlit-aggrid
+python-dotenv
+streamlit_oauth
+streamlit_cookies_controller
+PyJWT

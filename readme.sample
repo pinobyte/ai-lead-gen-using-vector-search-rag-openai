@@ -1,0 +1,471 @@
+# Auto Aggregator - Enterprise Microservices Platform
+
+![Build Status](https://github.com/vladkuzmich/auto-aggregator/workflows/build%20and%20test/badge.svg)
+
+A comprehensive, production-ready **event-driven microservices architecture** for aggregating, processing, and analyzing automotive listings from multiple sources. This platform demonstrates enterprise-level software engineering practices including **Domain-Driven Design (DDD)**, **real-time analytics**, **multi-storage strategies**, and **scalable cloud-native architecture**.
+
+## 🏗️ Architecture Overview
+
+This system implements a sophisticated **event-driven microservices architecture** built on **Microsoft Azure**, designed to handle high-volume data ingestion, real-time processing, and analytics at scale.
+
+![Architecture Diagram](docs/architecture.drawio.png)
+
+### Core Architectural Principles
+
+- **Event-Driven Architecture**: Asynchronous communication via Azure Service Bus topics and queues
+- **Domain-Driven Design (DDD)**: Clear bounded contexts with Domain, Application, and Infrastructure layers
+- **Microservices**: Independently deployable services with single responsibility
+- **CQRS Pattern**: Separation of read and write operations
+- **Multi-Storage Strategy**: Purpose-built storage solutions for different data needs
+- **Real-Time Analytics**: Stream processing and analytical data aggregation
+
+## 🎯 System Capabilities
+
+### 1. **Multi-Source Data Ingestion**
+- **Web Scraping & Parsing**: Automated extraction from multiple car listing platforms
+  - Avito (Russia)
+  - AvBy (Belarus)
+  - AutoScout24 (Europe)
+- **Intelligent Parsing**: HTML and JSON parsers with fallback strategies
+- **Load-Aware Scheduling**: Dynamic request intervals based on time zones and load patterns
+- **Proxy Management**: Multiple fetcher strategies (Default, ScrapeApi, WebScrapingApi, AstroProxy)
+
+### 2. **Event-Driven Processing Pipeline**
+
+```
+Data Source → Parser Service → Event Bus → Ads Service → Event Bus → Subscriptions Service → Notifications
+```
+
+**Event Flow:**
+- `NewCarsParsedEvent` - Triggered when new listings are scraped
+- `CarAdUpdatedEvent` - Published when car advertisements are updated
+- `MetricsUpdatedEvent` - Real-time analytics metrics
+- `SubscriptionAddedEvent` - User subscription management events
+
+### 3. **Real-Time Analytics**
+- **Median Price Calculations**: Real-time price analytics by make/model/year
+- **Median Mileage Analytics**: Statistical analysis of vehicle mileage
+- **Metrics Aggregation**: Continuous monitoring and data enrichment
+- **Data Lake Integration**: Long-term storage for analytical workloads
+
+### 4. **Multi-Storage Architecture**
+
+| Storage Type | Use Case | Technology |
+|-------------|----------|------------|
+| **MongoDB** | Primary operational data (Ads, Subscriptions) | Document database for flexible schemas |
+| **Redis** | Caching layer for high-performance reads | In-memory cache for frequently accessed data |
+| **Cosmos DB** | Globally distributed operational data | Multi-model NoSQL for global scale |
+| **Azure Storage/Data Lake** | Analytical data warehouse | Long-term storage for analytics and reporting |
+| **PostgreSQL** | Metadata and reference data | Relational data for structured information |
+
+### 5. **Domain-Driven Design Implementation**
+
+Each microservice follows **DDD principles** with clear separation:
+
+```
+Service/
+├── Domain/              # Core business logic, aggregates, entities, value objects
+│   ├── Models/
+│   │   └── Aggregates/  # Aggregate roots (CarAd, Subscriber, etc.)
+│   ├── Events/          # Domain events
+│   └── ValuesObjects/   # Value objects
+├── Application/         # Use cases, handlers, DTOs
+│   └── Handlers/        # Command/Query handlers
+├── Infrastructure/       # External concerns (repositories, event bus, etc.)
+│   └── Mongo/           # Data access implementations
+└── IntegrationEvents/   # Cross-service communication contracts
+```
+
+**Key Aggregates:**
+- `CarAd` - Vehicle listing aggregate with price history and metadata
+- `Subscriber` - User subscription management with filter criteria
+- `Company` - Dealer/company information
+- `CarRequest` - User requests (buy, inspection, questions)
+
+### 6. **API Gateway & GraphQL**
+
+- **YARP Reverse Proxy**: Intelligent routing to backend services
+- **GraphQL API**: Flexible query interface for frontend applications
+- **JWT Authentication**: Secure API access
+- **Localization**: Multi-language support (ru-RU, en-US, etc.)
+
+### 7. **Notification System**
+
+- **Telegram Bot Integration**: Real-time notifications to subscribers
+- **Multi-Channel Support**: Email and Telegram channels
+- **Smart Filtering**: User-defined subscription filters with complex criteria
+- **Rate Limiting**: Intelligent notification throttling
+
+## 📦 Microservices
+
+### **AutoAggregator.Ads**
+**Purpose**: Core car advertisement management service
+
+**Responsibilities:**
+- Store and manage car listings from multiple sources
+- Price history tracking and currency conversion
+- VIN verification and data enrichment
+- Integration with analytical services
+
+**Technologies:**
+- ASP.NET Core Web API
+- MongoDB for persistence
+- Azure Service Bus for events
+- Domain events for state changes
+
+### **AutoAggregator.Subscriptions**
+**Purpose**: User subscription and notification management
+
+**Responsibilities:**
+- Manage user subscriptions with complex filter criteria
+- Match new listings against user filters
+- Coordinate notification delivery
+- Payment processing integration (QIWI)
+
+**Technologies:**
+- ASP.NET Core Web API
+- MongoDB for user data
+- Redis for caching
+- Azure Data Lake for analytical queries
+- Telegram Bot API
+
+### **AutoAggregator.Gateway**
+**Purpose**: API Gateway and unified entry point
+
+**Responsibilities:**
+- Request routing to backend services
+- Authentication and authorization
+- GraphQL endpoint
+- Rate limiting and throttling
+
+**Technologies:**
+- YARP (Yet Another Reverse Proxy)
+- GraphQL.NET
+- JWT authentication
+- FluentValidation
+
+### **AutoAggregator.Parsers**
+**Purpose**: Web scraping and data extraction
+
+**Responsibilities:**
+- Scheduled scraping from multiple sources
+- HTML/JSON parsing with multiple strategies
+- Load-aware request scheduling
+- Proxy rotation and retry logic
+
+**Technologies:**
+- Azure Functions (serverless)
+- Multiple parser implementations
+- Configurable fetcher strategies
+- Time-zone aware scheduling
+
+### **AutoAggregator.Notifiers**
+**Purpose**: Notification delivery service
+
+**Responsibilities:**
+- Send notifications via Telegram
+- Channel-based notifications
+- Notification queuing and retry
+
+**Technologies:**
+- Azure Functions
+- Telegram Bot API
+- Queue-based processing
+
+### **AutoAggregator.AnalyticalData**
+**Purpose**: Real-time analytics and metrics
+
+**Responsibilities:**
+- Calculate median prices and mileages
+- Aggregate metrics across time periods
+- Data enrichment for listings
+- Integration with Data Lake
+
+**Technologies:**
+- Background processing
+- Statistical calculations
+- Azure Data Lake integration
+
+### **AutoAggregator.Updater**
+**Purpose**: Data synchronization and updates
+
+**Responsibilities:**
+- Metadata updates
+- Data consistency maintenance
+- Background processing
+
+## 🔄 Event-Driven Communication
+
+The system uses **Azure Service Bus** for reliable, asynchronous communication:
+
+### Event Types
+
+1. **Parsing Events**
+   - `NewCarsParsedEvent` - New listings discovered
+
+2. **Advertisement Events**
+   - `AvitoRuCarAdUpdatedEvent`
+   - `AvByCarAdUpdatedEvent`
+   - `AutoScout24CarAdUpdatedEvent`
+
+3. **Subscription Events**
+   - `SubscriptionAddedEvent`
+   - `BotWasBlockedBySubscriberEvent`
+
+4. **Analytics Events**
+   - `MetricsUpdatedEvent`
+   - `MedianMileageRefreshedEvent`
+
+5. **User Events**
+   - `AccountSettingsUpdatedEvent`
+
+### Event Flow Example
+
+```
+1. Parser Service scrapes new listings
+   ↓
+2. Publishes NewCarsParsedEvent to Service Bus
+   ↓
+3. Ads Service consumes event → stores in MongoDB
+   ↓
+4. Publishes CarAdUpdatedEvent
+   ↓
+5. Subscriptions Service consumes event → matches against user filters
+   ↓
+6. Publishes SendNotificationCommand to queue
+   ↓
+7. Notifiers Service sends Telegram notification
+```
+
+## 🗄️ Data Storage Strategy
+
+### MongoDB (Primary Operational Store)
+- **Ads Service**: Car listings, companies, requests
+- **Subscriptions Service**: Users, subscriptions, payment history
+- **Schema**: Flexible document model for evolving requirements
+
+### Redis (Caching Layer)
+- **Subscriptions Service**: Frequently accessed subscription data
+- **Performance**: Sub-millisecond read latency
+- **Use Cases**: Filter matching, user session data
+
+### Azure Cosmos DB
+- **Global Distribution**: Multi-region data replication
+- **Use Cases**: High-availability operational data
+
+### Azure Data Lake Storage
+- **Analytics**: Long-term storage for analytical queries
+- **Data Formats**: JSON blobs for median prices/mileages
+- **Integration**: Power BI, custom dashboards
+
+### PostgreSQL
+- **Metadata**: Reference data, configuration
+- **Structured Data**: Relational integrity where needed
+
+## 🚀 Deployment & Infrastructure
+
+### Containerization
+- **Docker**: All services containerized
+- **Multi-stage builds**: Optimized image sizes
+- **Docker Compose**: Local development
+
+### Cloud Deployment
+- **Azure App Service**: Web APIs
+- **Azure Functions**: Serverless parsers and notifiers
+- **Azure Kubernetes Service (AKS)**: Container orchestration (optional)
+- **Azure Service Bus**: Message broker
+- **Azure Container Registry**: Docker image storage
+
+### CI/CD
+- **GitHub Actions**: Automated builds and deployments
+- **Environment-specific configs**: Dev, Staging, Production
+- **Infrastructure as Code**: Bicep templates for Azure resources
+
+## 🛠️ Technology Stack
+
+### Backend
+- **.NET 8**: Primary framework
+- **ASP.NET Core**: Web APIs
+- **Azure Functions**: Serverless compute
+- **MediatR**: CQRS pattern implementation
+- **FluentValidation**: Input validation
+
+### Data & Messaging
+- **MongoDB.Driver**: Document database access
+- **StackExchange.Redis**: Redis client
+- **Azure Service Bus**: Message broker
+- **Azure.Storage.Blobs**: Blob storage
+
+### API & Integration
+- **GraphQL.NET**: GraphQL implementation
+- **YARP**: Reverse proxy
+- **Telegram.Bot**: Telegram integration
+- **HttpClient**: External API calls
+
+### Testing
+- **xUnit**: Unit testing framework
+- **Moq**: Mocking framework
+- **Integration tests**: End-to-end validation
+
+## 📊 Key Features Demonstrated
+
+### ✅ Enterprise Patterns
+- **Microservices Architecture**: Independent, scalable services
+- **Event-Driven Design**: Loose coupling via events
+- **Domain-Driven Design**: Rich domain models
+- **CQRS**: Command/Query separation
+- **Repository Pattern**: Data access abstraction
+- **Unit of Work**: Transaction management
+
+### ✅ Scalability & Performance
+- **Horizontal Scaling**: Stateless services
+- **Caching Strategy**: Redis for performance
+- **Async Processing**: Non-blocking operations
+- **Load Balancing**: Multiple service instances
+- **Database Sharding**: MongoDB sharding support
+
+### ✅ Reliability & Resilience
+- **Event Sourcing**: Audit trail via events
+- **Retry Policies**: Automatic retry for transient failures
+- **Circuit Breaker**: Fault tolerance
+- **Health Checks**: Service monitoring
+- **Dead Letter Queues**: Failed message handling
+
+### ✅ Observability
+- **Structured Logging**: Serilog integration
+- **Application Insights**: Azure monitoring
+- **Seq**: Centralized logging (optional)
+- **Health Endpoints**: Kubernetes readiness/liveness
+
+## 📈 Real-Time Analytics Capabilities
+
+The system provides sophisticated analytical capabilities:
+
+1. **Median Price Calculation**
+   - By Make/Model/Year
+   - By Make/Model/Year/EngineCapacity
+   - Last 50 days rolling window
+   - Multi-currency support
+
+2. **Median Mileage Analytics**
+   - Statistical analysis by vehicle attributes
+   - Historical trends
+   - Data Lake storage for long-term analysis
+
+3. **Metrics Aggregation**
+   - Real-time dashboard data
+   - Price change tracking
+   - Market trend analysis
+
+## 🔐 Security & Compliance
+
+- **JWT Authentication**: Secure API access
+- **Role-Based Access Control**: User permissions
+- **Input Validation**: FluentValidation
+- **HTTPS**: Encrypted communication
+- **Secrets Management**: Azure Key Vault integration
+
+## 📝 Configuration
+
+### Parser Configuration
+Each parser source has configurable parameters:
+- **Load Zones**: NoLoad, LowLoad, MidLoad, HighLoad, PeakLoad
+- **Request Intervals**: Time-zone aware scheduling
+- **Parser Types**: HTML, JSON
+- **Fetcher Strategies**: Default, ScrapeApi, WebScrapingApi, AstroProxy
+- **Retry Policies**: Configurable retry counts and backoff
+
+See [Parser Configuration Specification](README.md#specification-for-parsers-configuration) for detailed configuration options.
+
+## 🧪 Testing Strategy
+
+- **Unit Tests**: Domain logic, handlers, services
+- **Integration Tests**: API endpoints, database operations
+- **End-to-End Tests**: Full workflow validation
+- **Test Data**: Isolated test databases
+
+## 📚 Project Structure
+
+```
+AutoAggregator/
+├── AutoAggregator.Ads/              # Advertisement service
+│   ├── Domain/                       # Domain models, aggregates
+│   ├── Application/                  # Use cases, handlers
+│   ├── Infrastructure/               # Data access, external services
+│   └── Api/                          # REST API, message handlers
+├── AutoAggregator.Subscriptions/     # Subscription service
+├── AutoAggregator.Gateway/           # API Gateway
+├── AutoAggregator.Parsers/            # Web scraping services
+├── AutoAggregator.Notifiers/         # Notification service
+├── AutoAggregator.AnalyticalData/    # Analytics service
+├── AutoAggregator.Updater/           # Data updater
+├── Actions/                          # GitHub Actions workflows
+├── deploy/                           # Infrastructure as Code (Bicep)
+└── docs/                             # Architecture diagrams
+```
+
+## 🎓 Learning Outcomes
+
+This project demonstrates:
+
+1. **Microservices Design**: How to decompose a monolith into independent services
+2. **Event-Driven Architecture**: Asynchronous communication patterns
+3. **DDD Implementation**: Rich domain models and bounded contexts
+4. **Multi-Storage Strategy**: Choosing the right database for each use case
+5. **Real-Time Processing**: Stream processing and analytics
+6. **Cloud-Native Development**: Azure services integration
+7. **Scalable Architecture**: Patterns for high-throughput systems
+
+## 🚦 Getting Started
+
+### Prerequisites
+- .NET 8 SDK
+- Docker Desktop
+- Azure subscription (for cloud deployment)
+- MongoDB (local or cloud)
+- Redis (local or cloud)
+- Azure Service Bus namespace
+
+### Local Development
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd auto-aggregator-domain-services
+   ```
+
+2. **Start infrastructure services**
+   ```bash
+   docker-compose up -d mongodb redis
+   ```
+
+3. **Configure connection strings** in `appsettings.Development.json`
+
+4. **Run services**
+   ```bash
+   dotnet run --project AutoAggregator.Ads/src/AutoAggregator.Ads.Api
+   dotnet run --project AutoAggregator.Subscriptions/src/AutoAggregator.Subscriptions.Api
+   dotnet run --project AutoAggregator.Gateway/src/AutoAggregator.Gateway
+   ```
+
+### Using Tye (Local Orchestration)
+
+```bash
+tye run
+```
+
+This will start all services and provide a dashboard at `http://localhost:8000`
+
+## 📄 License
+
+[Specify your license here]
+
+## 👥 Contributing
+
+[Contributing guidelines]
+
+---
+
+**Built with ❤️ using .NET, Azure, and modern microservices patterns**
+
+This project showcases enterprise-level software architecture suitable for high-scale, production environments. It demonstrates proficiency in building complex, distributed systems with modern cloud technologies.
