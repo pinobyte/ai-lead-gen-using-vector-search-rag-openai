@@ -17,7 +17,7 @@ This system implements a modern **microservices architecture** built on **Python
 - **AI-Powered Analysis**: OpenAI integration for intelligent content analysis and summarization
 - **Microservices Design**: Separated API and UI services for independent scaling
 - **Async Processing**: Non-blocking operations for high-performance data processing
-- **Multi-Storage Strategy**: MongoDB for operational data, Redis for caching, Azure Search for vector search
+- **Multi-Storage Strategy**: MongoDB for operational data, Azure Search for vector search
 
 ## 🎯 System Capabilities
 
@@ -48,16 +48,64 @@ User Query → Embedding Generation → Vector Search → Semantic Ranking → R
 - **Chunked Processing**: Efficient processing of large review datasets
 - **Multi-level Insights**: Intermediate and final analysis aggregation
 
-### 4. **Multi-Storage Architecture**
+### 4. **RAG (Retrieval-Augmented Generation) System**
+
+The platform implements a sophisticated RAG architecture that combines vector search with AI-powered analysis to provide intelligent insights from customer reviews.
+
+**RAG Pipeline Flow:**
+```
+1. User Query Input
+   ↓
+2. Query Embedding Generation (Azure OpenAI)
+   ↓
+3. Hybrid Vector Search (Azure Cognitive Search)
+   - Semantic search with vector similarity
+   - Keyword matching for exact terms
+   - Semantic ranking for relevance
+   ↓
+4. Context Retrieval
+   - Top 25 most relevant reviews retrieved
+   - Filtered by industry, company size, budget, date
+   - Structured content extraction (background, challenges, solutions, feedback)
+   ↓
+5. Chunked Analysis (Two-Stage Processing)
+   - Stage 1: Parallel processing of review chunks (3 reviews per chunk)
+   - Stage 2: Final aggregation and synthesis
+   ↓
+6. AI-Powered Response Generation
+   - Context-aware analysis using retrieved reviews
+   - Structured insights extraction
+   - Query-specific answer generation
+```
+
+**Key RAG Components:**
+
+- **Embedding Generation**: Converts natural language queries into high-dimensional vectors using Azure OpenAI's embedding models (text-embedding-3-small)
+- **Vector Search**: Performs semantic similarity search using cosine similarity in Azure Cognitive Search
+- **Hybrid Search**: Combines vector search with keyword search for improved accuracy
+- **Context Retrieval**: Retrieves top-k most relevant reviews (k=25) based on semantic similarity
+- **Chunked Processing**: Processes large review sets in parallel chunks for efficiency
+- **Two-Stage Analysis**: 
+  - Intermediate analysis: Summarizes individual review chunks
+  - Final synthesis: Combines insights into comprehensive answer
+- **Structured Extraction**: Extracts specific information (background, challenges, solutions, feedback) from unstructured review text
+
+**RAG Benefits:**
+- **Accuracy**: Retrieves contextually relevant information before generating responses
+- **Transparency**: Responses are grounded in actual review data
+- **Efficiency**: Chunked processing handles large datasets efficiently
+- **Scalability**: Vector search scales to millions of documents
+- **Flexibility**: Supports complex queries with multiple filters
+
+### 5. **Multi-Storage Architecture**
 
 | Storage Type | Use Case | Technology |
 |-------------|----------|------------|
 | **MongoDB** | Primary operational data (Company profiles, reviews) | Document database for flexible schemas |
-| **Redis** | Caching layer for high-performance reads | In-memory cache for frequently accessed data |
 | **Azure Cognitive Search** | Vector search and semantic search | Full-text and vector search capabilities |
 | **Azure OpenAI** | Embeddings and completions | AI model services for embeddings and analysis |
 
-### 5. **GraphQL API**
+### 6. **GraphQL API**
 
 - **Flexible Queries**: Client-defined data fetching
 - **Type Safety**: Strongly typed schema with Strawberry GraphQL
@@ -65,7 +113,7 @@ User Query → Embedding Generation → Vector Search → Semantic Ranking → R
 - **Filtering**: Complex filtering across multiple dimensions
 - **Profile Search**: Advanced profile search with multiple criteria
 
-### 6. **Streamlit Web Interface**
+### 7. **Streamlit Web Interface**
 
 - **Interactive UI**: User-friendly interface for search and analysis
 - **OAuth Integration**: Google OAuth2 authentication
@@ -120,7 +168,6 @@ User Query → Embedding Generation → Vector Search → Semantic Ranking → R
 **Technologies:**
 - Apify Client (Web scraping)
 - Async processing
-- Redis (Task queuing)
 
 ## 🔄 Data Flow
 
@@ -165,12 +212,6 @@ User Query → Embedding Generation → Vector Search → Semantic Ranking → R
 - **Reviews**: Customer reviews with structured content
 - **Schema**: Flexible document model for evolving requirements
 - **Indexing**: Optimized indexes for search performance
-
-### Redis (Caching Layer)
-- **Session Data**: User session management
-- **Task Queues**: Background job processing
-- **Performance**: Sub-millisecond read latency
-- **Use Cases**: Frequently accessed data, rate limiting
 
 ### Azure Cognitive Search
 - **Vector Search**: Semantic similarity search
@@ -218,7 +259,6 @@ User Query → Embedding Generation → Vector Search → Semantic Ranking → R
 
 ### Data & Storage
 - **MongoDB**: Document database
-- **Redis**: In-memory data store
 - **Motor**: Async MongoDB operations
 
 ### Frontend
@@ -244,7 +284,6 @@ User Query → Embedding Generation → Vector Search → Semantic Ranking → R
 ### ✅ Scalability & Performance
 - **Async Processing**: Non-blocking I/O operations
 - **Vector Search**: Efficient semantic similarity search
-- **Caching Strategy**: Redis for performance optimization
 - **Chunked Processing**: Efficient handling of large datasets
 - **Connection Pooling**: Optimized database connections
 
@@ -308,11 +347,6 @@ Required environment variables for the API service:
 # Database
 MONGO_URI=mongodb://root:example@localhost:27017
 MONGO_DB_NAME=mydatabase
-
-# Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_DB=0
 
 # Apify (for scraping)
 APIFY_API_KEY=your_apify_key
@@ -426,11 +460,6 @@ Create a `.env` file in the `app/` directory with the following content:
 # Database Configuration
 MONGO_URI=mongodb://root:example@localhost:27017
 MONGO_DB_NAME=mydatabase
-
-# Redis Configuration
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_DB=0
 
 # Apify API (for web scraping)
 APIFY_API_KEY=your_apify_api_key
